@@ -6,7 +6,7 @@ A web-based Lost and Found management system designed to help users report lost 
 
 *   **Frontend**: Next.js, React, Tailwind CSS
 *   **Backend**: Spring Boot, Java
-*   **Database**: MySQL (or whatever DB is being used)
+*   **Database**: MySQL
 
 ## Getting Started
 
