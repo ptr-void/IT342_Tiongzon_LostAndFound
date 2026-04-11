@@ -4,11 +4,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { User, LogOut, ShieldAlert } from "lucide-react";
+import { LogOut, ShieldAlert, Menu, X, Package, PlusCircle, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
 
 export function Navbar() {
     const [user, setUser] = useState<any>(null);
+    const [mobileOpen, setMobileOpen] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
 
@@ -36,10 +37,15 @@ export function Navbar() {
         fetchUser();
     }, [pathname]);
 
+    useEffect(() => {
+        setMobileOpen(false);
+    }, [pathname]);
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
         setUser(null);
+        setMobileOpen(false);
         toast.success("Successfully logged out");
         router.push("/login");
     };
@@ -58,17 +64,34 @@ export function Navbar() {
     return (
         <nav className="border-b bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-50 border-rose-100 dark:border-rose-900/50 shadow-sm">
             <div className="flex h-16 items-center px-4 md:px-6 container mx-auto">
-                <Link href="/" className="text-xl font-extrabold tracking-tight">
+                <Link href="/" className="text-xl font-extrabold tracking-tight flex-shrink-0">
                     <span className="text-rose-900 dark:text-rose-500">Lost</span>
                     <span className="text-amber-500 dark:text-amber-400">&</span>
                     <span className="text-rose-900 dark:text-rose-500">Found</span>
                 </Link>
 
-                <div className="ml-auto flex items-center space-x-1 sm:space-x-2">
+                <div className="ml-auto flex items-center gap-1">
+                    <div className="hidden sm:flex items-center gap-1">
+                        <Link href="/items">
+                            <Button variant="ghost" size="sm" className={linkClass("/items")}>Catalog</Button>
+                        </Link>
+                        <Link href="/report">
+                            <Button variant="ghost" size="sm" className={linkClass("/report")}>Report Item</Button>
+                        </Link>
+                        {user && (
+                            <Link href="/my-items">
+                                <Button variant="ghost" size="sm" className={linkClass("/my-items")}>My Items</Button>
+                            </Link>
+                        )}
+                    </div>
+
                     {user ? (
-                        <div className="flex items-center gap-4 border-l border-slate-200 dark:border-slate-800 pl-4 ml-2">
-                            <Link href="/" className="flex items-center gap-2 group">
-                                <div className={`h-8 w-8 rounded-full p-0.5 shadow-sm group-hover:shadow-md transition-shadow bg-gradient-to-tr from-rose-800 to-amber-500`}>
+                        <div className="hidden sm:flex items-center gap-2 border-l border-slate-200 dark:border-slate-800 pl-3 ml-1">
+                            <Link href="/profile" className="flex items-center gap-2 group">
+                                <div className={`h-8 w-8 rounded-full p-0.5 shadow-sm group-hover:shadow-md transition-shadow ${isActive("/profile")
+                                    ? "bg-gradient-to-tr from-amber-500 to-rose-500 ring-2 ring-amber-400/50"
+                                    : "bg-gradient-to-tr from-rose-800 to-amber-500"
+                                    }`}>
                                     <div className="h-full w-full rounded-full bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden">
                                         {user.avatarUrl ? (
                                             <img src={user.avatarUrl} alt="Avatar" className="object-cover w-full h-full" />
@@ -78,9 +101,9 @@ export function Navbar() {
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-start gap-0.5">
-                                    <span className="hidden md:inline-block text-sm font-semibold capitalize text-slate-700 dark:text-slate-300 group-hover:text-rose-800">{user.username}</span>
+                                    <span className={`hidden md:inline-block text-sm font-semibold capitalize ${isActive("/profile") ? "text-rose-800" : "text-slate-700 dark:text-slate-300 group-hover:text-rose-800"}`}>{user.username}</span>
                                     {user.warningMarks > 0 && (
-                                        <div className="hidden md:flex items-center gap-1 bg-amber-100/80 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded-sm border border-amber-200 dark:border-amber-700/50" title={`${user.warningMarks} Warning(s)`}>
+                                        <div className="hidden md:flex items-center gap-1 bg-amber-100/80 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded-sm border border-amber-200 dark:border-amber-700/50">
                                             <ShieldAlert className="h-2.5 w-2.5" />
                                             <span>{user.warningMarks} Warning{user.warningMarks > 1 ? 's' : ''}</span>
                                         </div>
@@ -92,17 +115,91 @@ export function Navbar() {
                             </Button>
                         </div>
                     ) : (
-                        <div className="flex items-center gap-2 pl-2">
+                        <div className="hidden sm:flex items-center gap-2 pl-2">
                             <Link href="/login">
-                                <Button variant="ghost" className={linkClass("/login")}>Sign In</Button>
+                                <Button variant="ghost" size="sm" className={linkClass("/login")}>Sign In</Button>
                             </Link>
                             <Link href="/register">
-                                <Button className="bg-rose-900 text-white hover:bg-rose-950 shadow-sm hidden sm:inline-flex">Sign Up</Button>
+                                <Button size="sm" className="bg-rose-900 text-white hover:bg-rose-950 shadow-sm">Sign Up</Button>
                             </Link>
                         </div>
                     )}
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="sm:hidden ml-1 text-slate-600 hover:text-rose-800 hover:bg-rose-50"
+                        onClick={() => setMobileOpen(!mobileOpen)}
+                        aria-label="Toggle menu"
+                    >
+                        {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                    </Button>
                 </div>
             </div>
+
+            {mobileOpen && (
+                <div className="sm:hidden border-t border-rose-100 dark:border-rose-900/40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md pb-4 px-4">
+                    <div className="flex flex-col gap-1 pt-3">
+                        <Link href="/items" onClick={() => setMobileOpen(false)}>
+                            <Button variant="ghost" className={`w-full justify-start gap-2 ${linkClass("/items")}`}>
+                                <Package className="h-4 w-4" /> Catalog
+                            </Button>
+                        </Link>
+                        <Link href="/report" onClick={() => setMobileOpen(false)}>
+                            <Button variant="ghost" className={`w-full justify-start gap-2 ${linkClass("/report")}`}>
+                                <PlusCircle className="h-4 w-4" /> Report Item
+                            </Button>
+                        </Link>
+                        {user && (
+                            <Link href="/my-items" onClick={() => setMobileOpen(false)}>
+                                <Button variant="ghost" className={`w-full justify-start gap-2 ${linkClass("/my-items")}`}>
+                                    <LayoutDashboard className="h-4 w-4" /> My Items
+                                </Button>
+                            </Link>
+                        )}
+
+                        <div className="border-t border-slate-100 dark:border-slate-800 mt-2 pt-2">
+                            {user ? (
+                                <div className="flex flex-col gap-1">
+                                    <Link href="/profile" onClick={() => setMobileOpen(false)}>
+                                        <div className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors cursor-pointer">
+                                            <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-rose-800 to-amber-500 p-0.5 flex-shrink-0">
+                                                <div className="h-full w-full rounded-full bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden">
+                                                    {user.avatarUrl ? (
+                                                        <img src={user.avatarUrl} alt="Avatar" className="object-cover w-full h-full" />
+                                                    ) : (
+                                                        <span className="text-xs font-bold text-rose-800 dark:text-rose-400 uppercase">{user.username?.[0]}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-semibold capitalize text-slate-800 dark:text-slate-200">{user.username}</p>
+                                                <p className="text-xs text-slate-500">{user.email}</p>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full justify-start gap-2 text-rose-700 hover:text-rose-800 hover:bg-rose-50"
+                                        onClick={handleLogout}
+                                    >
+                                        <LogOut className="h-4 w-4" /> Sign Out
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-2">
+                                    <Link href="/login" onClick={() => setMobileOpen(false)}>
+                                        <Button variant="outline" className="w-full border-rose-200 text-rose-800">Sign In</Button>
+                                    </Link>
+                                    <Link href="/register" onClick={() => setMobileOpen(false)}>
+                                        <Button className="w-full bg-rose-900 text-white hover:bg-rose-950">Sign Up</Button>
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </nav>
     );
 }
