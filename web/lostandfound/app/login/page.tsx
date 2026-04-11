@@ -41,7 +41,7 @@ export default function LoginPage() {
       if (response.ok) {
         localStorage.setItem("token", data.token);
         toast.success("Login successful! Redirecting...");
-        setTimeout(() => router.push("/"), 800);
+        setTimeout(() => router.push("/items"), 800);
       } else {
         toast.error(data.message || "Failed to log in.");
       }
