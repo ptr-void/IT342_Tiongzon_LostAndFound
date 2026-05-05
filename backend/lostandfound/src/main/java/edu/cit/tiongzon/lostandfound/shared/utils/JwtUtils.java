@@ -1,4 +1,4 @@
-package edu.cit.tiongzon.lostandfound.Utils;
+package edu.cit.tiongzon.lostandfound.shared.utils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

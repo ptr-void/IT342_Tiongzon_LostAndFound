@@ -1,6 +1,6 @@
-package edu.cit.tiongzon.lostandfound.Config;
+package edu.cit.tiongzon.lostandfound.shared.config;
 
-import edu.cit.tiongzon.lostandfound.Utils.JwtUtils;
+import edu.cit.tiongzon.lostandfound.shared.utils.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
