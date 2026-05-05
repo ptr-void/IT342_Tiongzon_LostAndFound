@@ -1,4 +1,4 @@
-package edu.cit.tiongzon.lostandfound.data.model
+package edu.cit.tiongzon.lostandfound.feature.auth.data.model
 
 data class RegisterRequest(
     val username: String,

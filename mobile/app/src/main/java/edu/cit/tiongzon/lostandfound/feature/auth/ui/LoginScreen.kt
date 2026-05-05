@@ -1,6 +1,8 @@
-package edu.cit.tiongzon.lostandfound.ui.screens
+package edu.cit.tiongzon.lostandfound.feature.auth.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,7 +13,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -31,19 +33,19 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import edu.cit.tiongzon.lostandfound.data.api.RetrofitClient
-import edu.cit.tiongzon.lostandfound.data.model.RegisterRequest
-import edu.cit.tiongzon.lostandfound.ui.theme.*
+import edu.cit.tiongzon.lostandfound.shared.api.RetrofitClient
+import edu.cit.tiongzon.lostandfound.feature.auth.data.model.LoginRequest
+import edu.cit.tiongzon.lostandfound.shared.ui.theme.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(
-    onRegisterSuccess: () -> Unit,
-    onNavigateToLogin: () -> Unit
+fun LoginScreen(
+    onLoginSuccess: (String) -> Unit,
+    onNavigateToRegister: () -> Unit
 ) {
     var username by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -58,23 +60,23 @@ fun RegisterScreen(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Slate50, Indigo100.copy(alpha = 0.3f), Slate50)
+                    colors = listOf(Slate50, Amber50, Slate50)
                 )
             )
     ) {
         Box(
             modifier = Modifier
-                .size(250.dp)
-                .offset(x = 200.dp, y = (-40).dp)
+                .size(300.dp)
+                .offset(x = (-80).dp, y = (-60).dp)
                 .clip(CircleShape)
-                .background(Indigo100.copy(alpha = 0.4f))
+                .background(Amber100.copy(alpha = 0.4f))
         )
         Box(
             modifier = Modifier
-                .size(180.dp)
-                .offset(x = (-60).dp, y = 120.dp)
+                .size(200.dp)
+                .offset(x = 250.dp, y = 100.dp)
                 .clip(CircleShape)
-                .background(Rose100.copy(alpha = 0.25f))
+                .background(Rose100.copy(alpha = 0.3f))
         )
 
         Column(
@@ -91,13 +93,13 @@ fun RegisterScreen(
                 modifier = Modifier
                     .size(72.dp)
                     .clip(CircleShape)
-                    .background(Indigo100),
+                    .background(Amber100),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Default.PersonAdd,
-                    contentDescription = "Register",
-                    tint = Indigo600,
+                    Icons.Default.Login,
+                    contentDescription = "Login",
+                    tint = Amber600,
                     modifier = Modifier.size(32.dp)
                 )
             }
@@ -105,14 +107,14 @@ fun RegisterScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "Create an Account",
+                text = "Welcome Back",
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = Slate900
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Enter your credentials below to get started.",
+                text = "Enter your credentials to access your account.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Slate500,
                 textAlign = TextAlign.Center
@@ -130,11 +132,7 @@ fun RegisterScreen(
                     modifier = Modifier.padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = "Username",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = Slate700
-                    )
+                    Text("Username", style = MaterialTheme.typography.labelLarge, color = Slate700)
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it; errorMessage = null },
@@ -143,49 +141,14 @@ fun RegisterScreen(
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                        keyboardActions = KeyboardActions(
-                            onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                        ),
+                        keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Indigo600,
-                            unfocusedBorderColor = Slate200,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Slate50
+                            focusedBorderColor = Rose800, unfocusedBorderColor = Slate200,
+                            focusedContainerColor = Color.White, unfocusedContainerColor = Slate50
                         )
                     )
 
-                    Text(
-                        text = "Email",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = Slate700
-                    )
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = { email = it; errorMessage = null },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Type your email", color = Slate400) },
-                        shape = RoundedCornerShape(12.dp),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Next
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Indigo600,
-                            unfocusedBorderColor = Slate200,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Slate50
-                        )
-                    )
-
-                    Text(
-                        text = "Password",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = Slate700
-                    )
+                    Text("Password", style = MaterialTheme.typography.labelLarge, color = Slate700)
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it; errorMessage = null },
@@ -193,30 +156,20 @@ fun RegisterScreen(
                         placeholder = { Text("Type your password", color = Slate400) },
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
-                        visualTransformation = if (passwordVisible) VisualTransformation.None
-                            else PasswordVisualTransformation(),
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(
-                                    if (passwordVisible) Icons.Default.VisibilityOff
-                                    else Icons.Default.Visibility,
-                                    contentDescription = "Toggle password",
-                                    tint = Slate400
+                                    if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = "Toggle password", tint = Slate400
                                 )
                             }
                         },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = { focusManager.clearFocus() }
-                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Indigo600,
-                            unfocusedBorderColor = Slate200,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Slate50
+                            focusedBorderColor = Rose800, unfocusedBorderColor = Slate200,
+                            focusedContainerColor = Color.White, unfocusedContainerColor = Slate50
                         )
                     )
 
@@ -226,12 +179,8 @@ fun RegisterScreen(
                             colors = CardDefaults.cardColors(containerColor = Rose50),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text(
-                                text = errorMessage ?: "",
-                                color = Rose700,
-                                style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(12.dp)
-                            )
+                            Text(text = errorMessage ?: "", color = Rose700,
+                                style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
                         }
                     }
 
@@ -241,12 +190,8 @@ fun RegisterScreen(
                             colors = CardDefaults.cardColors(containerColor = Emerald100),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text(
-                                text = successMessage ?: "",
-                                color = Emerald600,
-                                style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(12.dp)
-                            )
+                            Text(text = successMessage ?: "", color = Emerald600,
+                                style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
                         }
                     }
 
@@ -254,37 +199,29 @@ fun RegisterScreen(
 
                     Button(
                         onClick = {
-                            if (username.isBlank() || email.isBlank() || password.isBlank()) {
+                            if (username.isBlank() || password.isBlank()) {
                                 errorMessage = "Please fill in all fields."
-                                return@Button
-                            }
-                            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                                errorMessage = "Please enter a valid email address."
-                                return@Button
-                            }
-                            if (password.length < 6) {
-                                errorMessage = "Password must be at least 6 characters."
                                 return@Button
                             }
                             isLoading = true
                             errorMessage = null
                             scope.launch {
                                 try {
-                                    val response = RetrofitClient.authApi.register(
-                                        RegisterRequest(username, email, password)
-                                    )
+                                    val response = RetrofitClient.authApi.login(LoginRequest(username, password))
                                     if (response.isSuccessful) {
-                                        successMessage = response.body()?.message
-                                            ?: "Account created! You can now log in."
-                                        kotlinx.coroutines.delay(1500)
-                                        onRegisterSuccess()
+                                        val token = response.body()?.token
+                                        if (token != null) {
+                                            successMessage = "Login successful! Redirecting..."
+                                            delay(1500)
+                                            onLoginSuccess(token)
+                                        } else {
+                                            errorMessage = "Unexpected response from server."
+                                        }
                                     } else {
                                         val errorBody = response.errorBody()?.string()
                                         errorMessage = try {
-                                            org.json.JSONObject(errorBody ?: "").optString("message", "Registration failed.")
-                                        } catch (e: Exception) {
-                                            "Registration failed."
-                                        }
+                                            org.json.JSONObject(errorBody ?: "").optString("message", "Invalid credentials!")
+                                        } catch (e: Exception) { "Invalid credentials!" }
                                     }
                                 } catch (e: Exception) {
                                     errorMessage = "Network error. Is the server running?"
@@ -293,48 +230,26 @@ fun RegisterScreen(
                                 }
                             }
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
+                        modifier = Modifier.fillMaxWidth().height(52.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Indigo600),
+                        colors = ButtonDefaults.buttonColors(containerColor = Rose900),
                         enabled = !isLoading
                     ) {
                         if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(22.dp),
-                                color = Color.White,
-                                strokeWidth = 2.dp
-                            )
+                            CircularProgressIndicator(modifier = Modifier.size(22.dp), color = Color.White, strokeWidth = 2.dp)
                             Spacer(modifier = Modifier.width(8.dp))
                         }
-                        Text(
-                            text = if (isLoading) "Signing up..." else "Create Account",
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 15.sp
-                        )
+                        Text(text = if (isLoading) "Logging in..." else "Sign in", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Already have an account? ",
-                    color = Slate500,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = "Sign in instead",
-                    color = Indigo600,
-                    fontWeight = FontWeight.SemiBold,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.clickable { onNavigateToLogin() }
-                )
+            Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+                Text("Don't have an account? ", color = Slate500, style = MaterialTheme.typography.bodyMedium)
+                Text("Sign up", color = Amber600, fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.bodyMedium, modifier = Modifier.clickable { onNavigateToRegister() })
             }
 
             Spacer(modifier = Modifier.weight(1f))
