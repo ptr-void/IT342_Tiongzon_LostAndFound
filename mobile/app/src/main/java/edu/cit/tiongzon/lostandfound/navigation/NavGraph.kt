@@ -1,12 +1,12 @@
-package edu.cit.tiongzon.lostandfound.ui.navigation
+package edu.cit.tiongzon.lostandfound.navigation
 
 import androidx.compose.runtime.*
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import edu.cit.tiongzon.lostandfound.ui.screens.HomeScreen
-import edu.cit.tiongzon.lostandfound.ui.screens.LoginScreen
-import edu.cit.tiongzon.lostandfound.ui.screens.RegisterScreen
+import edu.cit.tiongzon.lostandfound.feature.home.ui.HomeScreen
+import edu.cit.tiongzon.lostandfound.feature.auth.ui.LoginScreen
+import edu.cit.tiongzon.lostandfound.feature.auth.ui.RegisterScreen
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
