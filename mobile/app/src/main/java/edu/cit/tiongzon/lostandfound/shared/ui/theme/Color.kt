@@ -1,4 +1,4 @@
-package edu.cit.tiongzon.lostandfound.ui.theme
+package edu.cit.tiongzon.lostandfound.shared.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

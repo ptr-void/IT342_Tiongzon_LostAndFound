@@ -1,4 +1,4 @@
-package edu.cit.tiongzon.lostandfound.data.api
+package edu.cit.tiongzon.lostandfound.shared.api
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

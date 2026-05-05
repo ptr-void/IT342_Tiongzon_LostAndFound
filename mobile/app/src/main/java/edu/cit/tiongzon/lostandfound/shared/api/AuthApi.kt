@@ -1,9 +1,9 @@
-package edu.cit.tiongzon.lostandfound.data.api
+package edu.cit.tiongzon.lostandfound.shared.api
 
-import edu.cit.tiongzon.lostandfound.data.model.AuthResponse
-import edu.cit.tiongzon.lostandfound.data.model.LoginRequest
-import edu.cit.tiongzon.lostandfound.data.model.RegisterRequest
-import edu.cit.tiongzon.lostandfound.data.model.UserResponse
+import edu.cit.tiongzon.lostandfound.feature.auth.data.model.AuthResponse
+import edu.cit.tiongzon.lostandfound.feature.auth.data.model.LoginRequest
+import edu.cit.tiongzon.lostandfound.feature.auth.data.model.RegisterRequest
+import edu.cit.tiongzon.lostandfound.feature.home.data.model.UserResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
