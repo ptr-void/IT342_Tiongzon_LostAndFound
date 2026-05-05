@@ -1,8 +1,8 @@
-package edu.cit.tiongzon.lostandfound.Controller;
+package edu.cit.tiongzon.lostandfound.feature.auth;
 
-import edu.cit.tiongzon.lostandfound.Entity.User;
-import edu.cit.tiongzon.lostandfound.Repository.UserRepository;
-import edu.cit.tiongzon.lostandfound.Utils.JwtUtils;
+import edu.cit.tiongzon.lostandfound.feature.users.User;
+import edu.cit.tiongzon.lostandfound.feature.users.UserRepository;
+import edu.cit.tiongzon.lostandfound.shared.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
