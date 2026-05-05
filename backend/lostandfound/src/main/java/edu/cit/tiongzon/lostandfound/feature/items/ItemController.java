@@ -1,10 +1,7 @@
-package edu.cit.tiongzon.lostandfound.Controller;
+package edu.cit.tiongzon.lostandfound.feature.items;
 
-import edu.cit.tiongzon.lostandfound.DTO.ItemDTO;
-import edu.cit.tiongzon.lostandfound.Entity.Item;
-import edu.cit.tiongzon.lostandfound.Entity.User;
-import edu.cit.tiongzon.lostandfound.Repository.ItemRepository;
-import edu.cit.tiongzon.lostandfound.Repository.UserRepository;
+import edu.cit.tiongzon.lostandfound.feature.users.User;
+import edu.cit.tiongzon.lostandfound.feature.users.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -69,22 +66,14 @@ public class ItemController {
         }
 
         Item item = itemOpt.get();
-        if (dto.getTitle() != null)
-            item.setTitle(dto.getTitle());
-        if (dto.getDescription() != null)
-            item.setDescription(dto.getDescription());
-        if (dto.getStatus() != null)
-            item.setStatus(dto.getStatus());
-        if (dto.getCategory() != null)
-            item.setCategory(dto.getCategory());
-        if (dto.getLocationLat() != null)
-            item.setLocationLat(dto.getLocationLat());
-        if (dto.getLocationLng() != null)
-            item.setLocationLng(dto.getLocationLng());
-        if (dto.getLocationDescription() != null)
-            item.setLocationDescription(dto.getLocationDescription());
-        if (dto.getImagePath() != null)
-            item.setImagePath(dto.getImagePath());
+        if (dto.getTitle() != null) item.setTitle(dto.getTitle());
+        if (dto.getDescription() != null) item.setDescription(dto.getDescription());
+        if (dto.getStatus() != null) item.setStatus(dto.getStatus());
+        if (dto.getCategory() != null) item.setCategory(dto.getCategory());
+        if (dto.getLocationLat() != null) item.setLocationLat(dto.getLocationLat());
+        if (dto.getLocationLng() != null) item.setLocationLng(dto.getLocationLng());
+        if (dto.getLocationDescription() != null) item.setLocationDescription(dto.getLocationDescription());
+        if (dto.getImagePath() != null) item.setImagePath(dto.getImagePath());
 
         Item updatedItem = itemRepository.save(item);
         return ResponseEntity.ok(convertToDto(updatedItem));
