@@ -12,7 +12,7 @@ import { Loader2, UploadCloud, X } from "lucide-react";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
 
-const MapPicker = dynamic(() => import("@/components/MapPicker"), { ssr: false });
+const MapPicker = dynamic(() => import("@/features/items/components/MapPicker"), { ssr: false });
 
 export default function ReportItemPage() {
     const router = useRouter();
