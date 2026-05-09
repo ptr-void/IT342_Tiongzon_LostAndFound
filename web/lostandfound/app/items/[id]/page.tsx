@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Loader2, ArrowLeft } from "lucide-react";
 
-const MapViewer = dynamic(() => import("@/components/MapViewer"), { ssr: false });
+const MapViewer = dynamic(() => import("@/features/items/components/MapViewer"), { ssr: false });
 
 export default function ItemDetailsPage() {
     const params = useParams();
