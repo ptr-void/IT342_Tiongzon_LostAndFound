@@ -4,6 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
+import { GoogleProvider } from "@/components/providers/GoogleProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,13 +32,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased relative bg-slate-50 dark:bg-slate-950`}
       >
         <div className="fixed inset-0 z-0 bg-grid-pattern opacity-60 pointer-events-none" />
-        <div className="relative z-10 flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-1">
-            {children}
-          </main>
-        </div>
-        <Toaster position="top-center" richColors />
+        <GoogleProvider>
+          <div className="relative z-10 flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-1">
+              {children}
+            </main>
+          </div>
+          <Toaster position="top-center" richColors />
+        </GoogleProvider>
       </body>
     </html>
   );

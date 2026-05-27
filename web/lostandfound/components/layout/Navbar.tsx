@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { LogOut, ShieldAlert, Menu, X, Package, PlusCircle, LayoutDashboard } from "lucide-react";
+import { LogOut, ShieldAlert, Menu, X, Package, PlusCircle, LayoutDashboard, MessageCircle, Inbox, UserCog } from "lucide-react";
 import { toast } from "sonner";
 
 export function Navbar() {
@@ -79,9 +79,22 @@ export function Navbar() {
                             <Button variant="ghost" size="sm" className={linkClass("/report")}>Report Item</Button>
                         </Link>
                         {user && (
-                            <Link href="/my-items">
-                                <Button variant="ghost" size="sm" className={linkClass("/my-items")}>My Items</Button>
-                            </Link>
+                            <>
+                                <Link href="/my-items">
+                                    <Button variant="ghost" size="sm" className={linkClass("/my-items")}>My Items</Button>
+                                </Link>
+                                <Link href="/chat/global">
+                                    <Button variant="ghost" size="sm" className={linkClass("/chat/global")}>Global Chat</Button>
+                                </Link>
+                                <Link href="/messages">
+                                    <Button variant="ghost" size="sm" className={linkClass("/messages")}>Messages</Button>
+                                </Link>
+                                {user.role === "ADMIN" && (
+                                    <Link href="/admin">
+                                        <Button variant="ghost" size="sm" className={linkClass("/admin")}>Admin</Button>
+                                    </Link>
+                                )}
+                            </>
                         )}
                     </div>
 
@@ -100,8 +113,8 @@ export function Navbar() {
                                         )}
                                     </div>
                                 </div>
-                                <div className="flex flex-col items-start gap-0.5">
-                                    <span className={`hidden md:inline-block text-sm font-semibold capitalize ${isActive("/profile") ? "text-rose-800" : "text-slate-700 dark:text-slate-300 group-hover:text-rose-800"}`}>{user.username}</span>
+                                <div className="flex flex-col items-start gap-0.5 max-w-[120px]">
+                                    <span className={`hidden md:inline-block text-sm font-semibold capitalize truncate w-full ${isActive("/profile") ? "text-rose-800" : "text-slate-700 dark:text-slate-300 group-hover:text-rose-800"}`} title={user.username}>{user.username}</span>
                                     {user.warningMarks > 0 && (
                                         <div className="hidden md:flex items-center gap-1 bg-amber-100/80 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded-sm border border-amber-200 dark:border-amber-700/50">
                                             <ShieldAlert className="h-2.5 w-2.5" />
@@ -151,11 +164,30 @@ export function Navbar() {
                             </Button>
                         </Link>
                         {user && (
-                            <Link href="/my-items" onClick={() => setMobileOpen(false)}>
-                                <Button variant="ghost" className={`w-full justify-start gap-2 ${linkClass("/my-items")}`}>
-                                    <LayoutDashboard className="h-4 w-4" /> My Items
-                                </Button>
-                            </Link>
+                            <>
+                                <Link href="/my-items" onClick={() => setMobileOpen(false)}>
+                                    <Button variant="ghost" className={`w-full justify-start gap-2 ${linkClass("/my-items")}`}>
+                                        <LayoutDashboard className="h-4 w-4" /> My Items
+                                    </Button>
+                                </Link>
+                                <Link href="/chat/global" onClick={() => setMobileOpen(false)}>
+                                    <Button variant="ghost" className={`w-full justify-start gap-2 ${linkClass("/chat/global")}`}>
+                                        <MessageCircle className="h-4 w-4" /> Global Chat
+                                    </Button>
+                                </Link>
+                                <Link href="/messages" onClick={() => setMobileOpen(false)}>
+                                    <Button variant="ghost" className={`w-full justify-start gap-2 ${linkClass("/messages")}`}>
+                                        <Inbox className="h-4 w-4" /> Messages
+                                    </Button>
+                                </Link>
+                                {user.role === "ADMIN" && (
+                                    <Link href="/admin" onClick={() => setMobileOpen(false)}>
+                                        <Button variant="ghost" className={`w-full justify-start gap-2 ${linkClass("/admin")}`}>
+                                            <UserCog className="h-4 w-4" /> Admin
+                                        </Button>
+                                    </Link>
+                                )}
+                            </>
                         )}
 
                         <div className="border-t border-slate-100 dark:border-slate-800 mt-2 pt-2">
@@ -172,9 +204,9 @@ export function Navbar() {
                                                     )}
                                                 </div>
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-semibold capitalize text-slate-800 dark:text-slate-200">{user.username}</p>
-                                                <p className="text-xs text-slate-500">{user.email}</p>
+                                            <div className="max-w-[180px]">
+                                                <p className="text-sm font-semibold capitalize text-slate-800 dark:text-slate-200 truncate" title={user.username}>{user.username}</p>
+                                                <p className="text-xs text-slate-500 truncate" title={user.email}>{user.email}</p>
                                             </div>
                                         </div>
                                     </Link>
