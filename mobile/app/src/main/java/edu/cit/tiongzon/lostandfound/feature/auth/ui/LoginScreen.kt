@@ -25,6 +25,8 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
+import edu.cit.tiongzon.lostandfound.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -35,9 +37,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import edu.cit.tiongzon.lostandfound.shared.api.RetrofitClient
 import edu.cit.tiongzon.lostandfound.feature.auth.data.model.LoginRequest
+import edu.cit.tiongzon.lostandfound.feature.auth.data.model.GoogleLoginRequest
 import edu.cit.tiongzon.lostandfound.shared.ui.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,6 +64,48 @@ fun LoginScreen(
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
+    
+    val context = LocalContext.current
+    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestIdToken("638378399138-2v3h9egmrh83vpqvq1q0l0c07u7k7m4v.apps.googleusercontent.com")
+        .requestEmail()
+        .build()
+    val googleSignInClient = remember { GoogleSignIn.getClient(context, gso) }
+
+    val googleAuthLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            val idToken = account?.idToken
+            if (idToken != null) {
+                isLoading = true
+                errorMessage = null
+                scope.launch {
+                    try {
+                        val response = RetrofitClient.authApi.googleLogin(GoogleLoginRequest(idToken))
+                        if (response.isSuccessful) {
+                            val token = response.body()?.token
+                            if (token != null) {
+                                successMessage = "Google Login successful! Redirecting..."
+                                delay(1500)
+                                onLoginSuccess(token)
+                            } else {
+                                errorMessage = "Unexpected response from server."
+                            }
+                        } else {
+                            errorMessage = "Google authentication failed."
+                        }
+                    } catch (e: Exception) {
+                        errorMessage = "Network error."
+                    } finally {
+                        isLoading = false
+                    }
+                }
+            }
+        } catch (e: ApiException) {
+            errorMessage = "Google sign in failed: ${e.message}"
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -240,6 +292,37 @@ fun LoginScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                         }
                         Text(text = if (isLoading) "Logging in..." else "Sign in", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                    }
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = Slate200)
+                        Text(
+                            text = "OR CONTINUE WITH",
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            color = Slate400,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = Slate200)
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            googleSignInClient.signOut().addOnCompleteListener {
+                                googleAuthLauncher.launch(googleSignInClient.signInIntent)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Slate200),
+                        enabled = !isLoading
+                    ) {
+                        Icon(painter = painterResource(id = R.drawable.ic_google), contentDescription = "Google Logo", modifier = Modifier.size(20.dp), tint = Color.Unspecified)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "Google", color = Slate700, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                     }
                 }
             }
