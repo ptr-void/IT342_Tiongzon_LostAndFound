@@ -1,6 +1,6 @@
-// Feature: Auth — API calls
 
-const BASE_URL = "http://localhost:8080/api";
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
 
 export interface LoginRequest {
   username: string;
@@ -37,6 +37,20 @@ export async function registerUser(data: RegisterRequest): Promise<{ message: st
   const json = await response.json().catch(() => ({ message: "Connection error" }));
   if (!response.ok) {
     throw new Error(json.message || "Registration failed.");
+  }
+  return json;
+}
+
+export async function loginWithGoogle(idToken: string): Promise<{ token: string }> {
+  const response = await fetch(`${BASE_URL}/auth/google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken }),
+  });
+
+  const json = await response.json().catch(() => ({ message: "Connection error" }));
+  if (!response.ok) {
+    throw new Error(json.message || "Google Login failed.");
   }
   return json;
 }
