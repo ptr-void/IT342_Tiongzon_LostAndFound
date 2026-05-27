@@ -20,6 +20,22 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
+    @GetMapping
+    public ResponseEntity<?> getAllUsers(@RequestHeader("Authorization") String authorizationHeader) {
+        ResponseEntity<?> invalid = validateToken(authorizationHeader);
+        if (invalid != null) return invalid;
+        return ResponseEntity.ok(userRepository.findAll().stream().map(this::convertToDto).toList());
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getUserById(@PathVariable Long userId, @RequestHeader("Authorization") String authorizationHeader) {
+        ResponseEntity<?> invalid = validateToken(authorizationHeader);
+        if (invalid != null) return invalid;
+        return userRepository.findByUserId(userId)
+                .<ResponseEntity<?>>map(user -> ResponseEntity.ok(convertToDto(user)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/me")
     public ResponseEntity<?> getMe(@RequestHeader("Authorization") String authorizationHeader) {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
@@ -46,7 +62,7 @@ public class UserController {
                     .status(404)
                     .body(Map.of("message", "User not found"));
         }
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(convertToDto(user.get()));
     }
 
     @PatchMapping("/me/avatar")
@@ -75,5 +91,31 @@ public class UserController {
         user.setAvatarUrl(avatarUrl);
         userRepository.save(user);
         return ResponseEntity.ok(Map.of("avatarUrl", avatarUrl, "message", "Avatar updated successfully"));
+    }
+
+    private ResponseEntity<?> validateToken(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("message", "Missing or invalid Authorization header"));
+        }
+        try {
+            jwtService.extractUsername(authorizationHeader.substring(7));
+            return null;
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid token"));
+        }
+    }
+
+    private UserDTO convertToDto(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setUserId(user.getUserId());
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        dto.setAvatarUrl(user.getAvatarUrl());
+        dto.setRole(user.getRole());
+        dto.setActive(user.isActive());
+        dto.setWarningMarks(user.getWarningMarks());
+        dto.setBanned(user.isBanned());
+        dto.setCreatedAt(user.getCreatedAt());
+        return dto;
     }
 }
