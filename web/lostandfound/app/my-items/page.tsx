@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Trash2, Edit } from "lucide-react";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { FileCheck, Loader2, Trash2, Edit } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function MyItemsPage() {
     const [items, setItems] = useState<any[]>([]);
+    const [claims, setClaims] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
@@ -39,6 +40,13 @@ export default function MyItemsPage() {
                 setItems(myItems);
             } else {
                 toast.error("Failed to load your items.");
+            }
+
+            const claimsRes = await fetch("http://localhost:8080/api/claims/received", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (claimsRes.ok) {
+                setClaims(await claimsRes.json());
             }
         } catch (err) {
             console.error("Error fetching items", err);
@@ -100,6 +108,25 @@ export default function MyItemsPage() {
         }
     };
 
+    const handleClaimStatus = async (claimId: number, action: "approve" | "reject") => {
+        const token = localStorage.getItem("token");
+        try {
+            const res = await fetch(`http://localhost:8080/api/claims/${claimId}/${action}`, {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                toast.success(`Claim ${action === "approve" ? "approved" : "rejected"}.`);
+                fetchMyItems();
+            } else {
+                toast.error(`Failed to ${action} claim.`);
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("An error occurred while updating the claim.");
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex justify-center flex-col items-center h-[calc(100vh-4rem)]">
@@ -141,8 +168,10 @@ export default function MyItemsPage() {
                     </Card>
                 ) : (
                     <div className="grid grid-cols-1 gap-6">
-                        {items.map((item) => (
-                            <Card key={item.id} className="flex flex-col sm:flex-row overflow-hidden bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm hover:shadow-md transition-all border-slate-200 dark:border-slate-800">
+                        {items.map((item) => {
+                            const itemClaims = claims.filter((claim) => claim.itemId === item.id);
+                            return <Card key={item.id} className="overflow-hidden bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm hover:shadow-md transition-all border-slate-200 dark:border-slate-800">
+                                <div className="flex flex-col sm:flex-row">
                                 <div className="w-full ml-5 sm:w-48 h-48 sm:h-auto shrink-0 bg-slate-100 dark:bg-slate-800 relative">
                                     {item.imagePath ? (
                                         <img src={item.imagePath} alt={item.title} className="w-full h-full object-cover" />
@@ -168,11 +197,7 @@ export default function MyItemsPage() {
                                                 {item.category}
                                             </p>
                                         </div>
-                                        <Badge variant="outline" className={`shrink-0 ${item.status === 'LOST' ? 'bg-rose-50 text-rose-700 border-rose-200' :
-                                            item.status === 'FOUND' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                                                'bg-slate-100 text-slate-700 border-slate-300'}`}>
-                                            {item.status}
-                                        </Badge>
+                                        <StatusBadge status={item.status} className="shrink-0" />
                                     </div>
 
                                     <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mt-2 mb-4">
@@ -224,10 +249,34 @@ export default function MyItemsPage() {
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </div>
-                                    </div>
+                                     </div>
+                                 </div>
                                 </div>
-                            </Card>
-                        ))}
+                                {itemClaims.length > 0 && (
+                                    <div className="border-t border-slate-100 bg-amber-50/60 p-4 dark:border-slate-800 dark:bg-amber-950/10">
+                                        <div className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+                                            <FileCheck className="h-4 w-4 text-amber-600" /> File Claims Submitted for This Item
+                                        </div>
+                                        <div className="grid gap-3">
+                                            {itemClaims.map((claim) => <div key={claim.id} className="rounded-lg border bg-white p-3 text-sm dark:bg-slate-900">
+                                                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                                    <div>
+                                                        <p className="font-semibold">Claimed by {claim.claimantName || "Unknown"}</p>
+                                                        <p className="mt-1 text-slate-600 dark:text-slate-400">{claim.proofDescription || "No proof description"}</p>
+                                                        {claim.proofImagePath && <a href={claim.proofImagePath} target="_blank" className="mt-1 inline-block text-xs font-semibold text-rose-800 underline">View proof image</a>}
+                                                        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">Payment: <StatusBadge status={claim.paymentStatus || "NOT_APPLICABLE"} />{claim.paymentIntentId ? <span>Ref: {claim.paymentIntentId}</span> : null}</div>
+                                                    </div>
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <StatusBadge status={claim.status} />
+                                                        {claim.status === "PENDING" && <><Button size="sm" className="bg-emerald-600 text-white hover:bg-emerald-700" onClick={() => handleClaimStatus(claim.id, "approve")}>Approve</Button><Button size="sm" variant="destructive" onClick={() => handleClaimStatus(claim.id, "reject")}>Reject</Button></>}
+                                                    </div>
+                                                </div>
+                                            </div>)}
+                                        </div>
+                                    </div>
+                                )}
+                            </Card>;
+                        })}
                     </div>
                 )}
             </div>
