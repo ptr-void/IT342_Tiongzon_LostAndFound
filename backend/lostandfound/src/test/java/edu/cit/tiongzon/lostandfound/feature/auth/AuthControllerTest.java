@@ -44,7 +44,7 @@ class AuthControllerTest {
     @MockBean
     private edu.cit.tiongzon.lostandfound.shared.config.JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // TC-AUTH-01: Successful registration
+    
     @Test
     @DisplayName("TC-AUTH-01: POST /auth/register - success")
     void testRegisterSuccess() throws Exception {
@@ -52,7 +52,7 @@ class AuthControllerTest {
         when(userRepository.existsByEmail("new@example.com")).thenReturn(false);
         when(passwordEncoder.encode(any())).thenReturn("encoded-pass");
 
-        // Use Map to avoid @JsonProperty(WRITE_ONLY) serialization issues
+        
         Map<String, String> body = Map.of("username", "newuser", "email", "new@example.com", "password", "password123");
 
         mockMvc.perform(post("/auth/register")
@@ -62,7 +62,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.message").value("Registration success!"));
     }
 
-    // TC-AUTH-02: Duplicate username
+    
     @Test
     @DisplayName("TC-AUTH-02: POST /auth/register - duplicate username returns 400")
     void testRegisterDuplicateUsername() throws Exception {
@@ -77,7 +77,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.message").value("Username already exists!"));
     }
 
-    // TC-AUTH-03: Duplicate email
+    
     @Test
     @DisplayName("TC-AUTH-03: POST /auth/register - duplicate email returns 400")
     void testRegisterDuplicateEmail() throws Exception {
@@ -93,7 +93,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.message").value("Email already exists!"));
     }
 
-    // TC-AUTH-04: Successful login — send raw JSON to bypass @JsonProperty(WRITE_ONLY) on password
+    
     @Test
     @DisplayName("TC-AUTH-04: POST /auth/login - valid credentials returns token")
     void testLoginSuccess() throws Exception {
@@ -103,7 +103,7 @@ class AuthControllerTest {
         stored.setBanned(false);
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(stored));
-        // Use any() to match null or non-null password arg from controller
+        
         when(passwordEncoder.matches(any(), anyString())).thenReturn(true);
         when(jwtUtils.generateToken(anyString())).thenReturn("mocked-jwt-token");
 
@@ -116,7 +116,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.token").value("mocked-jwt-token"));
     }
 
-    // TC-AUTH-05: Wrong password
+    
     @Test
     @DisplayName("TC-AUTH-05: POST /auth/login - wrong password returns 400")
     void testLoginWrongPassword() throws Exception {
@@ -137,7 +137,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.message").value("Invalid credentials!"));
     }
 
-    // TC-AUTH-06: Banned user
+    
     @Test
     @DisplayName("TC-AUTH-06: POST /auth/login - banned user returns 403")
     void testLoginBannedUser() throws Exception {
