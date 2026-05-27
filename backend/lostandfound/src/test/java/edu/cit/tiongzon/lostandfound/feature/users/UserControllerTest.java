@@ -46,7 +46,7 @@ class UserControllerTest {
         return user;
     }
 
-    // TC-USER-01: GET /users/me valid token
+    
     @Test
     @DisplayName("TC-USER-01: GET /users/me - valid token returns user")
     void testGetMeValid() throws Exception {
@@ -58,7 +58,7 @@ class UserControllerTest {
                 .andExpect(status().isOk());
     }
 
-    // TC-USER-02: GET /users/me missing/invalid header
+    
     @Test
     @DisplayName("TC-USER-02: GET /users/me - missing Authorization header returns 401")
     void testGetMeMissingToken() throws Exception {
@@ -68,7 +68,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.message").value("Missing or invalid Authorization header"));
     }
 
-    // TC-USER-03: PATCH /users/me/avatar valid
+    
     @Test
     @DisplayName("TC-USER-03: PATCH /users/me/avatar - valid URL updates avatar")
     void testUpdateAvatarSuccess() throws Exception {
@@ -88,7 +88,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.avatarUrl").value("https://example.com/avatar.png"));
     }
 
-    // TC-USER-04: PATCH /users/me/avatar blank URL
+    
     @Test
     @DisplayName("TC-USER-04: PATCH /users/me/avatar - blank avatarUrl returns 400")
     void testUpdateAvatarBlankUrl() throws Exception {

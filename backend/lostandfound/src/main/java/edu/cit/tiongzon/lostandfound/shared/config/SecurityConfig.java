@@ -32,7 +32,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/users/**", "/auth/**", "/items/**", "/error").permitAll()
+                        .requestMatchers("/users/**", "/auth/**", "/items/**", "/files/download/**", "/ws/**", "/ws-native", "/ws-native/**", "/error").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

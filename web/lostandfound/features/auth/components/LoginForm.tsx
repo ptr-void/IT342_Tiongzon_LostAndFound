@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { loginUser } from "@/features/auth/api";
+import { loginUser, loginWithGoogle } from "@/features/auth/api";
+import { GoogleLogin } from "@react-oauth/google";
 
 export function LoginForm() {
   const [username, setUsername] = useState("");
@@ -29,6 +30,21 @@ export function LoginForm() {
       setTimeout(() => router.push("/items"), 800);
     } catch (error: any) {
       toast.error(error.message || "Failed to log in.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setIsLoading(true);
+    try {
+      if (!credentialResponse.credential) throw new Error("No credential received from Google.");
+      const data = await loginWithGoogle(credentialResponse.credential);
+      localStorage.setItem("token", data.token);
+      toast.success("Google Login successful! Redirecting...");
+      setTimeout(() => router.push("/items"), 800);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to log in with Google.");
     } finally {
       setIsLoading(false);
     }
@@ -62,6 +78,25 @@ export function LoginForm() {
             <Button type="submit" className="w-full bg-rose-900 hover:bg-rose-950 text-white" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Sign in"}
             </Button>
+            
+            <div className="relative w-full">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-200 dark:border-slate-800" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white dark:bg-slate-900 px-2 text-slate-500">Or continue with</span>
+              </div>
+            </div>
+
+            <div className="flex justify-center w-full">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => {
+                  toast.error("Google Login Failed");
+                }}
+                useOneTap
+              />
+            </div>
             <div className="text-center text-sm text-slate-500 w-full mb-2">
               Don&apos;t have an account?{" "}
               <Link href="/register" className="text-amber-600 hover:underline hover:text-amber-700 font-medium">

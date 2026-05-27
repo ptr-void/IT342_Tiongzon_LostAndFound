@@ -76,6 +76,15 @@ dependencies {
     implementation(libs.retrofit.gson)
     implementation(libs.okhttp.logging)
 
+    // WebSocket / STOMP for chat
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Image loading
+    implementation(libs.coil.compose)
+
+    // Google Sign-In
+    implementation(libs.play.services.auth)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

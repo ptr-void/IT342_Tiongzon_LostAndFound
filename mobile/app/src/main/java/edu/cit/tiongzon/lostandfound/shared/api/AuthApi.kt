@@ -20,4 +20,7 @@ interface AuthApi {
 
     @GET("users/me")
     suspend fun getCurrentUser(@Header("Authorization") token: String): Response<UserResponse>
+
+    @POST("auth/google")
+    suspend fun googleLogin(@Body request: edu.cit.tiongzon.lostandfound.feature.auth.data.model.GoogleLoginRequest): Response<AuthResponse>
 }
