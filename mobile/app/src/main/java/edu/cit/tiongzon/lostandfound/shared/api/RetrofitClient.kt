@@ -1,5 +1,10 @@
 package edu.cit.tiongzon.lostandfound.shared.api
 
+import edu.cit.tiongzon.lostandfound.feature.admin.data.api.AdminApi
+import edu.cit.tiongzon.lostandfound.feature.claims.data.api.ClaimApi
+import edu.cit.tiongzon.lostandfound.feature.items.data.api.ItemApi
+import edu.cit.tiongzon.lostandfound.feature.chat.data.api.MessageApi
+import edu.cit.tiongzon.lostandfound.feature.payments.data.api.PaymentApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -27,5 +32,10 @@ object RetrofitClient {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
+    val adminApi: AdminApi = retrofit.create(AdminApi::class.java)
     val authApi: AuthApi = retrofit.create(AuthApi::class.java)
+    val claimApi: ClaimApi = retrofit.create(ClaimApi::class.java)
+    val itemApi: ItemApi = retrofit.create(ItemApi::class.java)
+    val messageApi: MessageApi = retrofit.create(MessageApi::class.java)
+    val paymentApi: PaymentApi = retrofit.create(PaymentApi::class.java)
 }
