@@ -4,10 +4,10 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import Link from "next/link";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2, MessageCircle, ShieldCheck } from "lucide-react";
 
 const MapViewer = dynamic(() => import("@/features/items/components/MapViewer"), { ssr: false });
 
@@ -16,17 +16,26 @@ export default function ItemDetailsPage() {
     const id = params.id;
 
     const [item, setItem] = useState<any>(null);
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchItem = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/items/${id}`);
+                const token = localStorage.getItem("token");
+                const [response, meResponse] = await Promise.all([
+                    fetch(`http://localhost:8080/api/items/${id}`),
+                    token ? fetch("http://localhost:8080/api/users/me", { headers: { Authorization: `Bearer ${token}` } }) : Promise.resolve(null)
+                ]);
                 if (response.ok) {
                     const data = await response.json();
                     setItem(data);
                 } else {
                     console.error("Item not found");
+                }
+                if (meResponse?.ok) {
+                    const me = await meResponse.json();
+                    setCurrentUserId(me.userId);
                 }
             } catch (error) {
                 console.error(error);
@@ -50,10 +59,12 @@ export default function ItemDetailsPage() {
         return (
             <div className="flex flex-col justify-center items-center h-[calc(100vh-4rem)]">
                 <h2 className="text-2xl font-bold mb-4">Item Not Found</h2>
-                <Link href="/items"><Button variant="outline">Back to Catalog</Button></Link>
             </div>
         );
     }
+
+    const isOwnItem = item.reporterId === currentUserId;
+    const reporterAvatar = item.reporterAvatar || item.reporterAvatarUrl || item.avatarUrl;
 
     return (
         <div className="min-h-[calc(100vh-4rem)] px-4 py-6 relative overflow-hidden">
@@ -71,15 +82,13 @@ export default function ItemDetailsPage() {
                                     {item.category}
                                 </CardDescription>
                             </div>
-                            <Badge variant="outline" className={`text-sm px-3 py-1 font-semibold ${item.status === 'LOST' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
-                                {item.status}
-                            </Badge>
+                            <StatusBadge status={item.status} className="text-sm px-3 py-1 font-semibold" />
                         </div>
                     </CardHeader>
 
                     <CardContent className="p-0">
                         <div className="p-6 space-y-8">
-                            {/* Image */}
+                            {}
                             {item.imagePath ? (
                                 <div className="h-64 w-full rounded-xl overflow-hidden shadow-sm">
                                     <img src={item.imagePath} alt={item.title} className="w-full h-full object-cover" />
@@ -106,8 +115,8 @@ export default function ItemDetailsPage() {
                                         <div className="flex items-center gap-2.5">
                                             <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-rose-800 to-amber-500 p-0.5 flex-shrink-0">
                                                 <div className="h-full w-full rounded-full bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden">
-                                                    {item.reporterAvatar ? (
-                                                        <img src={item.reporterAvatar} alt={item.reporterName} className="object-cover w-full h-full" />
+                                                    {reporterAvatar ? (
+                                                        <img src={reporterAvatar} alt={item.reporterName} className="object-cover w-full h-full" />
                                                     ) : (
                                                         <span className="text-xs font-bold text-rose-800">{item.reporterName?.[0]?.toUpperCase()}</span>
                                                     )}
@@ -117,7 +126,7 @@ export default function ItemDetailsPage() {
                                                 <p className="font-medium text-slate-900 dark:text-white leading-tight">{item.reporterName || "Anonymous"}</p>
                                                 {item.reporterWarningMarks > 0 && (
                                                     <span className="flex items-center gap-1 text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/50 px-1.5 py-0.5 rounded w-fit">
-                                                        ⚠ {item.reporterWarningMarks} Warning{item.reporterWarningMarks > 1 ? 's' : ''}
+                                                        {item.reporterWarningMarks} Warning{item.reporterWarningMarks > 1 ? 's' : ''}
                                                     </span>
                                                 )}
                                             </div>
@@ -149,14 +158,23 @@ export default function ItemDetailsPage() {
                             </div>
                         </div>
 
-                        {/* Action Bar */}
-                        <div className="bg-slate-50 dark:bg-slate-900/50 p-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-                            <Link href="/items">
-                                <Button variant="outline" className="border-rose-200 text-rose-800 hover:bg-rose-50">
-                                    Back to Catalog
+                        {}
+                        {!isOwnItem && (
+                        <div className="bg-slate-50 dark:bg-slate-900/50 p-6 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-end gap-3">
+                            {item.reporterId && currentUserId && (
+                                <Link href={`/chat/${item.reporterId}?itemId=${item.id}`}>
+                                    <Button variant="outline" className="w-full sm:w-auto border-amber-200 text-amber-700 hover:bg-amber-50">
+                                        <MessageCircle className="mr-2 h-4 w-4" /> Message Reporter
+                                    </Button>
+                                </Link>
+                            )}
+                            <Link href={`/claims/new?itemId=${item.id}`}>
+                                <Button className="w-full sm:w-auto bg-rose-900 text-white hover:bg-rose-950">
+                                    <ShieldCheck className="mr-2 h-4 w-4" /> File Claim
                                 </Button>
                             </Link>
                         </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>

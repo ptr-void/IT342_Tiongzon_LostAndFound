@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import Link from "next/link";
 import { Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
@@ -159,9 +159,7 @@ export default function ItemsPage() {
                                     <CardHeader className="pb-3">
                                         <div className="flex justify-between items-start gap-4">
                                             <CardTitle className="text-xl line-clamp-1 group-hover:text-rose-800 transition-colors">{item.title}</CardTitle>
-                                            <Badge variant="outline" className={item.status === 'LOST' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}>
-                                                {item.status}
-                                            </Badge>
+                                            <StatusBadge status={item.status} />
                                         </div>
                                         <CardDescription className="text-amber-600 dark:text-amber-500 font-semibold text-xs tracking-wider uppercase">
                                             {item.category}
@@ -202,7 +200,7 @@ export default function ItemsPage() {
                                             <span className="text-xs font-medium text-slate-600 dark:text-slate-400 truncate">{item.reporterName || "Anonymous"}</span>
                                             {item.reporterWarningMarks > 0 && (
                                                 <span className="ml-auto text-[10px] font-bold text-amber-700 dark:text-amber-400 flex items-center gap-0.5 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/50 px-1.5 py-0.5 rounded flex-shrink-0">
-                                                    ⚠ {item.reporterWarningMarks}
+                                                    {item.reporterWarningMarks}
                                                 </span>
                                             )}
                                         </div>
