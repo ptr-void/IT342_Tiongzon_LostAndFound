@@ -62,7 +62,7 @@ class ItemControllerTest {
         return item;
     }
 
-    // TC-ITEM-01: GET /items returns list
+    
     @Test
     @DisplayName("TC-ITEM-01: GET /items - returns all items")
     void testGetAllItems() throws Exception {
@@ -73,7 +73,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$[0].title").value("Lost Wallet"));
     }
 
-    // TC-ITEM-02: GET /items/{id} found
+    
     @Test
     @DisplayName("TC-ITEM-02: GET /items/{id} - valid id returns item")
     void testGetItemByIdFound() throws Exception {
@@ -85,7 +85,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.status").value("LOST"));
     }
 
-    // TC-ITEM-03: GET /items/{id} not found
+    
     @Test
     @DisplayName("TC-ITEM-03: GET /items/{id} - not found returns 404")
     void testGetItemByIdNotFound() throws Exception {
@@ -96,7 +96,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.message").value("Item not found"));
     }
 
-    // TC-ITEM-04: POST /items success
+    
     @Test
     @DisplayName("TC-ITEM-04: POST /items - valid payload creates item")
     void testCreateItemSuccess() throws Exception {
@@ -120,7 +120,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.title").value("Lost Wallet"));
     }
 
-    // TC-ITEM-05: POST /items invalid reporter
+    
     @Test
     @DisplayName("TC-ITEM-05: POST /items - invalid reporterId returns 400")
     void testCreateItemInvalidReporter() throws Exception {
@@ -139,7 +139,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.message").value("Invalid reporter ID"));
     }
 
-    // TC-ITEM-06: PUT /items/{id} success
+    
     @Test
     @DisplayName("TC-ITEM-06: PUT /items/{id} - updates item successfully")
     void testUpdateItem() throws Exception {
@@ -160,7 +160,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.status").value("FOUND"));
     }
 
-    // TC-ITEM-07: DELETE /items/{id}
+    
     @Test
     @DisplayName("TC-ITEM-07: DELETE /items/{id} - deletes item successfully")
     void testDeleteItem() throws Exception {
